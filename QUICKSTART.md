@@ -4,16 +4,16 @@
 
 ### 步骤1：选择脚本版本
 
-**选择 `AdvancedCompactLayout.bas`** ✅ 推荐
+**选择 `AdvancedCompactLayout_VX2_13.bas`** ✅ 推荐
 - 包含所有功能
 - 自动处理U6502/U6503的outline对齐
 - 智能走线优化
-- PADS VX2.13 原生支持
+- PADS VX2.13 完全兼容
 
-**或使用 `CompactLayout.bas`**
+**或使用 `CompactLayout_VX2_13.bas`**
 - 简化版本
 - 适合快速测试
-- PADS VX2.13 原生支持
+- PADS VX2.13 完全兼容
 
 ### 步骤2：在PADS中准备
 
@@ -25,7 +25,7 @@
 ### 步骤3：运行脚本
 
 ```
-Tools → Run Script → AdvancedCompactLayout.bas
+Tools → Run Script → AdvancedCompactLayout_VX2_13.bas
 ```
 
 **等待提示框出现，显示"智能紧凑布局和走线完成!"**
@@ -106,7 +106,36 @@ Ctrl+S
 
 ---
 
-## 📝 下一步
+## 📝 常见使用场景
+
+### 场景1：整体紧凑布局
+```
+步骤：
+1. Ctrl+A 选择所有组件
+2. 运行 AdvancedCompactLayout_VX2_13.bas
+3. 脚本自动优化整个布局
+```
+
+### 场景2：区块级紧凑布局
+```
+步骤：
+1. 使用框选工具选择特定区块的组件
+2. 运行脚本
+3. 该区块内自动优化布局
+```
+
+### 场景3：保留特殊排列
+```
+步骤：
+1. 手动放置U6502/U6503
+2. 选择除这两个外的其他组件
+3. 运行 CompactLayout_VX2_13.bas
+4. 保留特殊组件位置，其他组件紧凑排列
+```
+
+---
+
+## 📚 更多信息
 
 - 查看 `README.md` 了解详细文档
 - 修改脚本以适配特殊需求
