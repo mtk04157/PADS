@@ -324,6 +324,3 @@ Function GetComponentHeight(comp As Object) As Double
     GetComponentHeight = height
     On Error GoTo 0
 End Function
-
-'主程序入口
-Call Main()
