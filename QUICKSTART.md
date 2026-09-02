@@ -4,14 +4,16 @@
 
 ### 步骤1：选择脚本版本
 
-**选择 `advanced_compact_layout.vbs`** ✅ 推荐
+**选择 `AdvancedCompactLayout.bas`** ✅ 推荐
 - 包含所有功能
 - 自动处理U6502/U6503的outline对齐
 - 智能走线优化
+- PADS VX2.13 原生支持
 
-**或使用 `compact_layout_and_route.vbs`**
+**或使用 `CompactLayout.bas`**
 - 简化版本
 - 适合快速测试
+- PADS VX2.13 原生支持
 
 ### 步骤2：在PADS中准备
 
@@ -23,7 +25,7 @@
 ### 步骤3：运行脚本
 
 ```
-Tools → Run Script → advanced_compact_layout.vbs
+Tools → Run Script → AdvancedCompactLayout.bas
 ```
 
 **等待提示框出现，显示"智能紧凑布局和走线完成!"**

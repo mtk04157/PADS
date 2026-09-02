@@ -4,7 +4,11 @@
 
 ## 脚本说明
 
-### 1. `compact_layout_and_route.vbs` - 基础版本
+⚠️ **PADS VX2.13 脚本格式注意**：
+- PADS VX2.13 仅支持 `*.bas` 格式的BASIC脚本
+- 不支持 `*.vbs` 格式
+
+### 1. `CompactLayout.bas` - 基础版本
 
 **功能：**
 - 选定区块内组件以0.2mm最小PAD间距摆放
@@ -15,7 +19,7 @@
 ```
 1. 在PADS PCB中打开目标PCB文件
 2. 选择要布局的组件区块
-3. 在PADS中执行脚本：Tools → Run Script → 选择 compact_layout_and_route.vbs
+3. 在PADS中执行脚本：Tools → Run Script → 选择 CompactLayout.bas
 4. 脚本自动处理选中的组件
 ```
 
@@ -27,7 +31,7 @@
 
 ---
 
-### 2. `advanced_compact_layout.vbs` - 高级版本（推荐）
+### 2. `AdvancedCompactLayout.bas` - 高级版本（推荐）
 
 **增强功能：**
 - ✅ 智能组件分类处理
@@ -41,7 +45,7 @@
 ```
 1. 在PADS PCB中打开PCB文件
 2. 选择整个设计区块或特定组件组
-3. Tools → Run Script → 选择 advanced_compact_layout.vbs
+3. Tools → Run Script → 选择 AdvancedCompactLayout.bas
 4. 脚本自动：
    - 识别U6502/U6503并outline对齐
    - 其他组件0.2mm间距紧凑排列
@@ -102,7 +106,7 @@ Main()
 ```
 步骤：
 1. Ctrl+A 选择所有组件
-2. 运行 advanced_compact_layout.vbs
+2. 运行 AdvancedCompactLayout.bas
 3. 脚本自动优化整个布局
 ```
 
@@ -119,7 +123,7 @@ Main()
 步骤：
 1. 手动放置U6502/U6503
 2. 选择除这两个外的其他组件
-3. 运行 compact_layout_and_route.vbs
+3. 运行 CompactLayout.bas
 4. 保留特殊组件位置，其他组件紧凑排列
 ```
 
