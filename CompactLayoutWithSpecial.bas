@@ -4,23 +4,19 @@ Private Declare Function OpenProcess Lib "kernel32" (ByVal dwDesiredAccess As Lo
 Private Declare Function CloseHandle Lib "kernel32" (ByVal hObject As Long) As Long
 Private Declare Function WaitForSingleObject Lib "kernel32" (ByVal hHandle As Long, ByVal dwMilliseconds As Long) As Long
 
-Dim compData() As CompInfo
+Dim compName() As String
+Dim compRefX() As Double
+Dim compRefY() As Double
+Dim compMinPadX() As Double
+Dim compMaxPadX() As Double
+Dim compMinPadY() As Double
+Dim compMaxPadY() As Double
+Dim compPadWidth() As Double
+Dim compPadHeight() As Double
+Dim compIsSpecial() As Boolean
 Dim compCount As Integer
 Dim specialCompIndices() As Integer
 Dim specialCount As Integer
-
-Type CompInfo
-	Name As String
-	RefX As Double
-	RefY As Double
-	MinPadX As Double
-	MaxPadX As Double
-	MinPadY As Double
-	MaxPadY As Double
-	PadWidth As Double
-	PadHeight As Double
-	IsSpecial As Boolean
-End Type
 
 Sub Main
 	On Error GoTo ErrorHandler
@@ -46,20 +42,31 @@ Sub Main
 
 	Dim comp
 	For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
-		ReDim Preserve compData(compCount)
-		compData(compCount).Name = comp.Name
-		compData(compCount).IsSpecial = (InStr(comp.Name, "U6502") > 0 Or InStr(comp.Name, "U6503") > 0)
+		ReDim Preserve compName(compCount)
+		ReDim Preserve compRefX(compCount)
+		ReDim Preserve compRefY(compCount)
+		ReDim Preserve compMinPadX(compCount)
+		ReDim Preserve compMaxPadX(compCount)
+		ReDim Preserve compMinPadY(compCount)
+		ReDim Preserve compMaxPadY(compCount)
+		ReDim Preserve compPadWidth(compCount)
+		ReDim Preserve compPadHeight(compCount)
+		ReDim Preserve compIsSpecial(compCount)
 
-		If compData(compCount).IsSpecial Then
+		compName(compCount) = comp.Name
+		compIsSpecial(compCount) = (InStr(comp.Name, "U6502") > 0 Or InStr(comp.Name, "U6503") > 0)
+
+		If compIsSpecial(compCount) Then
 			ReDim Preserve specialCompIndices(specialCount)
 			specialCompIndices(specialCount) = compCount
 			specialCount = specialCount + 1
 		End If
 
 		With comp.BBox
-			compData(compCount).RefX = (.Xmin + .Xmax) / 2
-			compData(compCount).RefY = (.Ymin + .Ymax) / 2
+			compRefX(compCount) = (.Xmin + .Xmax) / 2
+			compRefY(compCount) = (.Ymin + .Ymax) / 2
 		End With
+
 		compCount = compCount + 1
 	Next comp
 
@@ -120,7 +127,7 @@ Sub ParsePadCoordinates(ByVal ascFile As String)
 	Dim fh As Integer
 	Dim line As String
 	Dim i As Integer
-	Dim compName As String
+	Dim compNameStr As String
 	Dim padX As Double, padY As Double
 	Dim padWidth As Double, padHeight As Double
 
@@ -139,31 +146,31 @@ Sub ParsePadCoordinates(ByVal ascFile As String)
 
 		If Len(line) > 0 And InStr(line, "PAD") > 0 Then
 			If InStr(line, "*") > 0 Then
-				compName = Trim(Left(line, InStr(line, "*") - 1))
+				compNameStr = Trim(Left(line, InStr(line, "*") - 1))
 
 				For i = 0 To compCount - 1
-					If compData(i).Name = compName Then
+					If compName(i) = compNameStr Then
 						If InStr(line, "X") > 0 Then
 							padX = ExtractCoordinate(line, "X")
 							padY = ExtractCoordinate(line, "Y")
 							padWidth = ExtractCoordinate(line, "W")
 							padHeight = ExtractCoordinate(line, "H")
 
-							If i = 0 Or padX - padWidth / 2 < compData(i).MinPadX Then
-								compData(i).MinPadX = padX - padWidth / 2
+							If i = 0 Or padX - padWidth / 2 < compMinPadX(i) Then
+								compMinPadX(i) = padX - padWidth / 2
 							End If
-							If padX + padWidth / 2 > compData(i).MaxPadX Then
-								compData(i).MaxPadX = padX + padWidth / 2
+							If padX + padWidth / 2 > compMaxPadX(i) Then
+								compMaxPadX(i) = padX + padWidth / 2
 							End If
-							If padY - padHeight / 2 < compData(i).MinPadY Then
-								compData(i).MinPadY = padY - padHeight / 2
+							If padY - padHeight / 2 < compMinPadY(i) Then
+								compMinPadY(i) = padY - padHeight / 2
 							End If
-							If padY + padHeight / 2 > compData(i).MaxPadY Then
-								compData(i).MaxPadY = padY + padHeight / 2
+							If padY + padHeight / 2 > compMaxPadY(i) Then
+								compMaxPadY(i) = padY + padHeight / 2
 							End If
 
-							compData(i).PadWidth = padWidth
-							compData(i).PadHeight = padHeight
+							compPadWidth(i) = padWidth
+							compPadHeight(i) = padHeight
 						End If
 						Exit For
 					End If
@@ -212,27 +219,27 @@ Sub ArrangeStandard(ByVal PCBDoc, ByVal padding As Double)
 	Set pApp = PCBDoc.Application
 	pApp.LockServer
 
-	baseX = compData(0).MinPadX
-	baseY = compData(0).MinPadY
+	baseX = compMinPadX(0)
+	baseY = compMinPadY(0)
 	nextX = baseX
 
 	For i = 0 To compCount - 1
 		Dim compWidth As Double
 
-		compWidth = compData(i).MaxPadX - compData(i).MinPadX
-		maxHeight = compData(i).MaxPadY - compData(i).MinPadY
+		compWidth = compMaxPadX(i) - compMinPadX(i)
+		maxHeight = compMaxPadY(i) - compMinPadY(i)
 
 		newX = nextX + compWidth / 2
 		newY = baseY + maxHeight / 2
 
-		currentX = compData(i).RefX
-		currentY = compData(i).RefY
+		currentX = compRefX(i)
+		currentY = compRefY(i)
 
 		deltaX = newX - currentX
 		deltaY = newY - currentY
 
 		For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
-			If comp.Name = compData(i).Name Then
+			If comp.Name = compName(i) Then
 				comp.Move deltaX, deltaY
 				Exit For
 			End If
@@ -253,42 +260,35 @@ Sub ArrangeWithSpecialHandling(ByVal PCBDoc, ByVal padding As Double)
 	Dim baseX As Double, baseY As Double
 	Dim nextX As Double
 	Dim maxHeight As Double
-	Dim specialStartIdx As Integer
+	Dim isSpecialGroup As Boolean
 	Dim pApp
 
 	Set pApp = PCBDoc.Application
 	pApp.LockServer
 
-	baseX = compData(0).MinPadX
-	baseY = compData(0).MinPadY
+	baseX = compMinPadX(0)
+	baseY = compMinPadY(0)
 	nextX = baseX
 
 	For i = 0 To compCount - 1
 		Dim compWidth As Double
-		Dim isSpecialGroup As Boolean
 
-		isSpecialGroup = False
-		For j = 0 To specialCount - 1
-			If specialCompIndices(j) = i Then
-				isSpecialGroup = True
-				Exit For
-			End If
-		Next j
+		isSpecialGroup = compIsSpecial(i)
 
-		compWidth = compData(i).MaxPadX - compData(i).MinPadX
-		maxHeight = compData(i).MaxPadY - compData(i).MinPadY
+		compWidth = compMaxPadX(i) - compMinPadX(i)
+		maxHeight = compMaxPadY(i) - compMinPadY(i)
 
 		newX = nextX + compWidth / 2
 		newY = baseY + maxHeight / 2
 
-		currentX = compData(i).RefX
-		currentY = compData(i).RefY
+		currentX = compRefX(i)
+		currentY = compRefY(i)
 
 		deltaX = newX - currentX
 		deltaY = newY - currentY
 
 		For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
-			If comp.Name = compData(i).Name Then
+			If comp.Name = compName(i) Then
 				comp.Move deltaX, deltaY
 				Exit For
 			End If
