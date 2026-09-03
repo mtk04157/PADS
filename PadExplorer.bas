@@ -4,7 +4,7 @@ Sub Main
 	Dim PCBDoc
 	Dim comp
 	Dim pad
-	Dim padCount As Integer
+	Dim padCount As Long
 	Dim compName As String
 	Dim padInfo As String
 	Dim pApp

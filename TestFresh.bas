@@ -1,3 +1,3 @@
-Sub Main
-    MsgBox "Test"
-End Sub
+Sub Main
+    MsgBox "Test"
+End Sub
