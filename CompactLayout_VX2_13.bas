@@ -1,7 +1,3 @@
-'================================================
-' PADS VX2.13 脚本: 紧凑布局和直线走线
-'================================================
-
 Const MIN_PAD_SPACING = 0.2
 Const TRACE_WIDTH = 0.254
 
@@ -17,14 +13,13 @@ Sub Main
     Set PCBDoc = ActiveDocument
 
     If PCBDoc Is Nothing Then
-        MsgBox "请先打开PADS PCB文件", vbCritical
+        MsgBox "Please open PCB file first", vbCritical
         Exit Sub
     End If
 
     Set components = PCBDoc.Components
     compCount = 0
 
-    '计数选中的组件
     For Each comp In components
         If comp.selected Then
             compCount = compCount + 1
@@ -32,26 +27,21 @@ Sub Main
     Next comp
 
     If compCount = 0 Then
-        MsgBox "请先选择要布局的组件", vbExclamation
+        MsgBox "Please select components", vbExclamation
         Exit Sub
     End If
 
-    '执行紧凑布局
     Call CompactLayout(PCBDoc)
-
-    '执行直线走线
     Call AutoRoute(PCBDoc)
 
-    MsgBox "布局和走线完成!" & vbCrLf & _
-           "已处理 " & compCount & " 个组件", vbInformation
+    MsgBox "Complete. Processed " & compCount & " components", vbInformation
 
     Exit Sub
 
 ErrorHandler:
-    MsgBox "错误: " & Err.Description, vbCritical
+    MsgBox "Error: " & Err.Description, vbCritical
 End Sub
 
-'紧凑布局函数
 Sub CompactLayout(PCBDoc)
     Dim components
     Dim comp
@@ -71,7 +61,6 @@ Sub CompactLayout(PCBDoc)
     i = 0
     compCount = 0
 
-    '第一遍：计数和找起点
     For Each comp In components
         If comp.selected Then
             If compCount = 0 Then
@@ -84,12 +73,10 @@ Sub CompactLayout(PCBDoc)
 
     If compCount = 0 Then Exit Sub
 
-    '计算网格
     rowCount = Int(Sqr(compCount))
     If rowCount = 0 Then rowCount = 1
     colCount = Int(compCount / rowCount) + 1
 
-    '第二遍：摆放组件
     i = 0
     For Each comp In components
         If comp.selected Then
@@ -115,7 +102,6 @@ Sub CompactLayout(PCBDoc)
     PCBDoc.Refresh
 End Sub
 
-'自动走线函数
 Sub AutoRoute(PCBDoc)
     Dim nets
     Dim net
@@ -130,7 +116,6 @@ Sub AutoRoute(PCBDoc)
 
 End Sub
 
-'单个网络走线
 Sub RouteNet(net)
     On Error Resume Next
 
@@ -158,11 +143,9 @@ Sub RouteNet(net)
     On Error GoTo 0
 End Sub
 
-'绘制走线
 Sub DrawTrace(net, x1, y1, x2, y2)
     On Error Resume Next
 
-    '先水平后竖直
     If Abs(x1 - x2) > 0.001 Then
         Call DrawSegment(net, x1, y1, x2, y1)
     End If
@@ -174,7 +157,6 @@ Sub DrawTrace(net, x1, y1, x2, y2)
     On Error GoTo 0
 End Sub
 
-'绘制单个走线段
 Sub DrawSegment(net, x1, y1, x2, y2)
     On Error Resume Next
 
