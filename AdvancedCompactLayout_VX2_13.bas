@@ -1,9 +1,5 @@
 '================================================
 ' PADS VX2.13 脚本: 智能紧凑布局
-' 功能:
-'   1. 0.2mm最小PAD间距摆放
-'   2. 特定组件(U6502/U6503)outline对齐
-'   3. 直线最短走线
 '================================================
 
 Const MIN_PAD_SPACING = 0.2
@@ -67,6 +63,7 @@ Sub SmartCompactLayout(PCBDoc)
     Dim width, height
     Dim isSpecial
     Dim lastSpecialX, lastSpecialY, lastSpecialWidth
+    Dim compName
 
     Set components = PCBDoc.Components
     padSpacing = MIN_PAD_SPACING + 0.1
@@ -78,9 +75,10 @@ Sub SmartCompactLayout(PCBDoc)
 
     For Each comp In components
         If comp.selected Then
+            compName = UCase(comp.Name)
             isSpecial = False
 
-            If InStr(UCase(comp.Name), "U6502") > 0 Or InStr(UCase(comp.Name), "U6503") > 0 Then
+            If InStr(compName, "U6502") > 0 Or InStr(compName, "U6503") > 0 Then
                 isSpecial = True
             End If
 
@@ -89,14 +87,12 @@ Sub SmartCompactLayout(PCBDoc)
                 If width < 0.01 Then width = 1
 
                 If lastSpecialWidth = 0 Then
-                    '第一个特殊组件
                     comp.LocationX = 0
                     comp.LocationY = 0
                     lastSpecialX = 0
                     lastSpecialY = 0
                     lastSpecialWidth = width
                 Else
-                    '后续特殊组件 - outline对齐
                     x = lastSpecialX + lastSpecialWidth + MIN_OUTLINE_SPACING
                     comp.LocationX = x
                     comp.LocationY = lastSpecialY
@@ -115,9 +111,10 @@ Sub SmartCompactLayout(PCBDoc)
 
     For Each comp In components
         If comp.selected Then
+            compName = UCase(comp.Name)
             isSpecial = False
 
-            If InStr(UCase(comp.Name), "U6502") > 0 Or InStr(UCase(comp.Name), "U6503") > 0 Then
+            If InStr(compName, "U6502") > 0 Or InStr(compName, "U6503") > 0 Then
                 isSpecial = True
             End If
 
@@ -138,9 +135,10 @@ Sub SmartCompactLayout(PCBDoc)
 
         For Each comp In components
             If comp.selected Then
+                compName = UCase(comp.Name)
                 isSpecial = False
 
-                If InStr(UCase(comp.Name), "U6502") > 0 Or InStr(UCase(comp.Name), "U6503") > 0 Then
+                If InStr(compName, "U6502") > 0 Or InStr(compName, "U6503") > 0 Then
                     isSpecial = True
                 End If
 
@@ -174,24 +172,20 @@ End Sub
 Sub OptimizedAutoRoute(PCBDoc)
     Dim nets
     Dim net
-    Dim routedCount
 
     Set nets = PCBDoc.Nets
-    routedCount = 0
 
     For Each net In nets
         If net.PadCount >= 2 Then
-            If OptimizeNetRoute(net) Then
-                routedCount = routedCount + 1
-            End If
+            Call OptimizeNetRoute(net)
         End If
     Next net
 
 End Sub
 
 '单网络最优走线
-Function OptimizeNetRoute(net)
-    On Error GoTo ErrorHandler
+Sub OptimizeNetRoute(net)
+    On Error Resume Next
 
     Dim pads
     Dim i
@@ -214,18 +208,14 @@ Function OptimizeNetRoute(net)
         Next i
     End If
 
-    OptimizeNetRoute = True
-    Exit Function
-
-ErrorHandler:
-    OptimizeNetRoute = False
-End Function
+    On Error GoTo 0
+End Sub
 
 '绘制直线走线
 Sub DrawStraightTrace(net, x1, y1, x2, y2)
     On Error Resume Next
 
-    '先水平后竖直 (L形走线)
+    '先水平后竖直
     If Abs(x1 - x2) > 0.001 Then
         Call AddTraceSegment(net, x1, y1, x2, y1)
     End If

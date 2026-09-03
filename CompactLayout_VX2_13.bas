@@ -1,7 +1,5 @@
 '================================================
 ' PADS VX2.13 脚本: 紧凑布局和直线走线
-' 功能: 选定区块内的元件以0.2mm最小间距摆放
-'       并进行最短距离的直线走线
 '================================================
 
 Const MIN_PAD_SPACING = 0.2
@@ -84,6 +82,8 @@ Sub CompactLayout(PCBDoc)
         End If
     Next comp
 
+    If compCount = 0 Then Exit Sub
+
     '计算网格
     rowCount = Int(Sqr(compCount))
     If rowCount = 0 Then rowCount = 1
@@ -119,24 +119,20 @@ End Sub
 Sub AutoRoute(PCBDoc)
     Dim nets
     Dim net
-    Dim routedCount
 
     Set nets = PCBDoc.Nets
-    routedCount = 0
 
     For Each net In nets
         If net.PadCount >= 2 Then
-            If RouteNet(net) Then
-                routedCount = routedCount + 1
-            End If
+            Call RouteNet(net)
         End If
     Next net
 
 End Sub
 
 '单个网络走线
-Function RouteNet(net)
-    On Error GoTo ErrorHandler
+Sub RouteNet(net)
+    On Error Resume Next
 
     Dim pads
     Dim i
@@ -159,18 +155,14 @@ Function RouteNet(net)
         Next i
     End If
 
-    RouteNet = True
-    Exit Function
-
-ErrorHandler:
-    RouteNet = False
-End Function
+    On Error GoTo 0
+End Sub
 
 '绘制走线
 Sub DrawTrace(net, x1, y1, x2, y2)
     On Error Resume Next
 
-    '先水平后竖直 (L形走线)
+    '先水平后竖直
     If Abs(x1 - x2) > 0.001 Then
         Call DrawSegment(net, x1, y1, x2, y1)
     End If
