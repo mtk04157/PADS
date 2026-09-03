@@ -10,7 +10,7 @@ Const MIN_PAD_SPACING = 0.2
 Const MIN_OUTLINE_SPACING = 0
 Const TRACE_WIDTH = 0.254
 
-Sub Main()
+Sub Main
     On Error GoTo ErrorHandler
 
     Dim PCBDoc As Object

@@ -4,7 +4,7 @@
 '       并进行最短距离的直线走线
 '================================================
 
-Sub Main()
+Sub Main
     On Error GoTo ErrorHandler
 
     Dim PCBDoc As Object
