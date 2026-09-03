@@ -6,6 +6,7 @@ Sub Main
 	Dim i As Long
 	Dim spacing As Double
 	Dim pApp
+	Dim compName As String
 
 	Set PCBDoc = ActiveDocument
 	If PCBDoc Is Nothing Then
@@ -20,8 +21,14 @@ Sub Main
 	pApp.LockServer
 
 	For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
+		compName = comp.Name
 		On Error Resume Next
 		comp.Move i * spacing, 0
+		If Err.Number <> 0 Then
+			pApp.UnlockServer
+			MsgBox "Error on component: " & compName & vbCrLf & Err.Description, vbCritical
+			Exit Sub
+		End If
 		On Error GoTo ErrorHandler
 		i = i + 1
 	Next comp
@@ -34,5 +41,5 @@ Sub Main
 	Exit Sub
 ErrorHandler:
 	pApp.UnlockServer
-	MsgBox "Error at component " & i & ": " & Err.Description, vbCritical
+	MsgBox "Error: " & Err.Description, vbCritical
 End Sub
