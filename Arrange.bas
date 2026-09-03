@@ -6,7 +6,6 @@ Sub Main
 	Dim i As Long
 	Dim spacing As Double
 	Dim pApp
-	Dim compCount As Long
 
 	Set PCBDoc = ActiveDocument
 	If PCBDoc Is Nothing Then
@@ -15,30 +14,22 @@ Sub Main
 	End If
 
 	spacing = 2.0
-	compCount = 0
-
-	For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
-		compCount = compCount + 1
-	Next comp
-
-	If compCount = 0 Then
-		MsgBox "No components selected", vbInformation
-		Exit Sub
-	End If
+	i = 0
 
 	Set pApp = PCBDoc.Application
 	pApp.LockServer
 
-	i = 0
-	For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
-		comp.Move i * spacing, 0
-		i = i + 1
+	For Each comp In PCBDoc.Components
+		If comp.selected Then
+			comp.Move i * spacing, 0
+			i = i + 1
+		End If
 	Next comp
 
 	pApp.UnlockServer
 
 	PCBDoc.Refresh
-	MsgBox "Arranged " & compCount & " components", vbInformation
+	MsgBox "Arranged " & i & " components", vbInformation
 
 	Exit Sub
 ErrorHandler:
