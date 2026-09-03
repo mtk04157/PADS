@@ -22,8 +22,9 @@ Sub Main
 
 	For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
 		pApp.ExecuteCommand("Move")
-		PCBDoc.MainView.MouseMove(baseX + i * 2, baseY)
-		pApp.ExecuteCommand("Complete Move", baseX + i * 2, baseY)
+		PCBDoc.MainView.MouseMove(baseX + i * 2.5, baseY)
+		PCBDoc.MainView.MouseMove(baseX + i * 2.5, baseY)
+		pApp.ExecuteCommand("Complete Move", baseX + i * 2.5, baseY)
 		i = i + 1
 	Next comp
 
