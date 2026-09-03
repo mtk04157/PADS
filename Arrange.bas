@@ -6,9 +6,7 @@ Sub Main
 	Dim i As Long
 	Dim spacing As Double
 	Dim pApp
-	Dim compName As String
-	Dim successCount As Long
-	Dim skipList As String
+	Dim compCount As Long
 
 	Set PCBDoc = ActiveDocument
 	If PCBDoc Is Nothing Then
@@ -17,37 +15,30 @@ Sub Main
 	End If
 
 	spacing = 2.0
-	i = 0
-	successCount = 0
-	skipList = ""
+	compCount = 0
+
+	For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
+		compCount = compCount + 1
+	Next comp
+
+	If compCount = 0 Then
+		MsgBox "No components selected", vbInformation
+		Exit Sub
+	End If
 
 	Set pApp = PCBDoc.Application
 	pApp.LockServer
 
+	i = 0
 	For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
-		compName = comp.Name
-		On Error Resume Next
 		comp.Move i * spacing, 0
-		If Err.Number <> 0 Then
-			skipList = skipList & compName & vbCrLf
-			Err.Clear
-		Else
-			successCount = successCount + 1
-		End If
-		On Error GoTo ErrorHandler
 		i = i + 1
 	Next comp
 
 	pApp.UnlockServer
 
 	PCBDoc.Refresh
-	
-	Dim msg As String
-	msg = "Arranged " & successCount & " components"
-	If Len(skipList) > 0 Then
-		msg = msg & vbCrLf & "Skipped: " & vbCrLf & skipList
-	End If
-	MsgBox msg, vbInformation
+	MsgBox "Arranged " & compCount & " components", vbInformation
 
 	Exit Sub
 ErrorHandler:
