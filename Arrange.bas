@@ -4,19 +4,7 @@ Sub Main
 	Dim PCBDoc
 	Dim comp
 	Dim i As Long
-	Dim currentX As Double
-	Dim currentY As Double
-	Dim newX As Double
-	Dim newY As Double
-	Dim deltaX As Double
-	Dim deltaY As Double
-	Dim baseX As Double
-	Dim baseY As Double
-	Dim nextX As Double
-	Dim padding As Double
-	Dim compWidth As Double
-	Dim compLeft As Double
-	Dim pApp
+	Dim spacing As Double
 
 	Set PCBDoc = ActiveDocument
 	If PCBDoc Is Nothing Then
@@ -24,36 +12,15 @@ Sub Main
 		Exit Sub
 	End If
 
-	padding = 0.2
-	baseX = 0
-	baseY = 0
-	nextX = baseX
+	spacing = 2.0
 	i = 0
 
+	Dim pApp
 	Set pApp = PCBDoc.Application
 	pApp.LockServer
 
 	For Each comp In PCBDoc.GetObjects(ppcbObjectTypeComponent,, True)
-		currentX = (comp.BBox.Xmin + comp.BBox.Xmax) / 2
-		currentY = (comp.BBox.Ymin + comp.BBox.Ymax) / 2
-		compWidth = comp.BBox.Xmax - comp.BBox.Xmin
-		compLeft = comp.BBox.Xmin
-
-		If i = 0 Then
-			baseX = compLeft
-			baseY = comp.BBox.Ymin
-			nextX = baseX
-		End If
-
-		newX = nextX + compWidth / 2
-		newY = baseY
-
-		deltaX = newX - currentX
-		deltaY = newY - currentY
-
-		comp.Move deltaX, deltaY
-
-		nextX = nextX + compWidth + padding
+		comp.Move i * spacing, 0
 		i = i + 1
 	Next comp
 
